@@ -60,5 +60,5 @@ git is case-insensative with filenames.  To change the case of files names you n
 
 ## Some references:
 
-* http://progit.org/book/  (a must read to understand git).  
+* http://progit.org/book/  (a must read to understand git). [see http://git-scm.com/book]
 * http://www.randyfay.com/node/91  (a rebase workflow to avoid merge commit disaster)
