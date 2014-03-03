@@ -1,2 +1,9 @@
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+
 *.pyc
 *.pyo
