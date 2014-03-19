@@ -8,4 +8,3 @@ class TestDirectories():
     def testDirectories(self):
         self.assertEqual(1, 1)
 
-

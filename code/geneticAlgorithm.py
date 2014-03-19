@@ -21,3 +21,4 @@ class GeneticAlgorithm:
             # always cross chromosomes of those cells with less than average fitness
             return 1.0
         return (maxFitness - fitness) / (maxFitness - meanFitness)
+
