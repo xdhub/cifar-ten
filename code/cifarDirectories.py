@@ -17,15 +17,6 @@ def code():
 def data():
     return os.path.join(base(), 'data')
     
-def mnist():
-    return os.path.join(data(), 'mnist')
-    
-def cifar10():
-    return os.path.join(data(), 'cifar10')
-    
-def cifar100():
-    return os.path.join(data(), 'cifar100')
-    
 def cifarKaggle():
     return os.path.join(data(), 'cifarKaggle')
     
