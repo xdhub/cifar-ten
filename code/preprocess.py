@@ -12,6 +12,13 @@ def load(name):
     path = os.path.join(os.environ['CIFIR_DATA_DIR'], 'train', str(name) + '.png')
     return Image.open(path)
 
+def reconstruct(arr, size):
+    n = size[0] * size[1]
+    imr = Image.fromstring('L', size, arr[0:n].tostring(), 'raw')
+    img = Image.fromstring('L', size, arr[n:2*n].tostring(), 'raw')
+    imb = Image.fromstring('L', size, arr[2*n:3*n].tostring(), 'raw')
+    return Image.merge('RGB', (imr, img, imb))
+
 def normalize(image):
     # find the dimensions of image, which is assumed to be square
     n = image.size[0]
@@ -36,8 +43,7 @@ def conflattenDwt(a):
     b = conflatten(dw[1])
     return conflatten([dw[0], b])
 
-def loadImageFeatures(name):
-    image = load(name)
+def dwtFftFeatures(image):
     # find the dimensions of image, which is assumed to be square
     n = image.size[0]
 
@@ -52,3 +58,6 @@ def loadImageFeatures(name):
     
     return numpy.concatenate([dw, f])
 
+def loadImageFeatures(name):
+    return dwtFftFeatures(load(name))
+    
