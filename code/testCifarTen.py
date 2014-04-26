@@ -1,7 +1,8 @@
 import unittest
 import sys
 
-sys.path.append('tests')
+import cifarDirectories
+sys.path.append(cifarDirectories.tests())
 
 import testExample
 import testGeneticAlgorithm

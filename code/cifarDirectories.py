@@ -1,18 +1,24 @@
 import os
 
 def base():
-    basePath = '.'
+    basePath = '..'
         
     try:
-        homeDir = os.environ['HOME']
-        basePath = os.path.join(homeDir, 'cifar-ten') 
+        basePath = os.environ['CIFAR10_HOME']
     except KeyError:
-        pass
+        try:
+            homeDir = os.environ['HOME']
+            basePath = os.path.join(homeDir, 'cifar-ten') 
+        except KeyError:
+            pass
 
     return basePath
     
 def code():
     return os.path.join(base(), 'code')
+
+def tests():
+    return os.path.join(code(), 'tests')
 
 def data():
     return os.path.join(base(), 'data')

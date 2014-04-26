@@ -9,6 +9,7 @@ class TestDirectories():
     def testDirectories(self):
         self.assertTrue(os.path.exists(cifarDirectories.base()))
         self.assertTrue(os.path.exists(cifarDirectories.code()))
+        self.assertTrue(os.path.exists(cifarDirectories.tests()))
         self.assertTrue(os.path.exists(cifarDirectories.data()))
         self.assertTrue(os.path.exists(cifarDirectories.cifarKaggle()))
         self.assertTrue(os.path.exists(cifarDirectories.demos()))
