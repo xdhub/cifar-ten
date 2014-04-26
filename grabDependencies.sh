@@ -19,6 +19,20 @@ function downloadFiles()
     curl http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz > data/mnist.pkl.gz
 }
 
+function cloneRepos()
+{
+    pushd .
+    cd demos
+    
+    git clone git@github.com:lisa-lab/DeepLearningTutorials.git
+    git clone git@github.com:fsprojects/Vulpes.git
+    git clone git@github.com:jdeng/rbm-mnist.git
+    svn checkout http://cuda-convnet.googlecode.com/svn/trunk/ cuda-convnet-read-only
+    
+    popd
+}
+
 createDirectories
 downloadFiles
+cloneRepos
 
