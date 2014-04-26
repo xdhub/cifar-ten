@@ -20,4 +20,12 @@ def data():
 def cifarKaggle():
     return os.path.join(data(), 'cifarKaggle')
     
+def demos():
+    return os.path.join(base(), 'demos')
+    
+def DeepLearningTutorials():
+    return os.path.join(demos(), 'DeepLearningTutorials')
+
+def DeepLearningTutorialsCode():
+    return os.path.join(DeepLearningTutorials(), 'code')
 
