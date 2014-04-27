@@ -21,86 +21,60 @@ class LogisticRegression(Classifier, logistic_sgd.LogisticRegression):
     def __init__(self, input, dataset):
         logistic_sgd.LogisticRegression.__init__(self, input, dataset.n_in, dataset.n_out)
 
-def sgd_optimization_mnist(learning_rate=0.13, n_epochs=1000, batch_size=600):
-    d = dataset.Mnist()
-    datasets = d.loadData()
+class HyperParameters(object):
+    def __init__(self, learningRate=0.13, numberEpochs=1000, batchSize=600, patience = 5000, patienceIncrease = 2, improvementThreshold = 0.995):
+        self.learningRate = learningRate
+        self.numberEpochs = numberEpochs
+        self.batchSize = batchSize
+        self.patience = patience
+        self.patienceIncrease = patienceIncrease
+        self.improvementThreshold = improvementThreshold
 
-    train_set_x, train_set_y = datasets[0]
-    valid_set_x, valid_set_y = datasets[1]
-    test_set_x, test_set_y = datasets[2]
+def sgd_optimization(dataset, hyper):
+    print dataset.n_in, dataset.n_out
 
-    # compute number of minibatches for training, validation and testing
-    n_train_batches = train_set_x.get_value(borrow=True).shape[0] / batch_size
-    n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] / batch_size
-    n_test_batches = test_set_x.get_value(borrow=True).shape[0] / batch_size
+    train_set_x, train_set_y = dataset.sharedTrain
+    valid_set_x, valid_set_y = dataset.sharedValid
+    test_set_x, test_set_y = dataset.sharedTest
 
-    ######################
-    # BUILD ACTUAL MODEL #
-    ######################
-    print '... building the model'
+    n_train_batches = train_set_x.get_value(borrow=True).shape[0] / hyper.batchSize
+    n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] / hyper.batchSize
+    n_test_batches = test_set_x.get_value(borrow=True).shape[0] / hyper.batchSize
+    
+    validationFrequency = min(n_train_batches, hyper.patience / 2)
 
-    # allocate symbolic variables for the data
     index = T.lscalar()  # index to a [mini]batch
     x = T.matrix('x')  # the data is presented as rasterized images
     y = T.ivector('y')  # the labels are presented as 1D vector of
                            # [int] labels
 
-    # construct the logistic regression class
-    # Each MNIST image has size 28*28
-    classifier = LogisticRegression(input=x, dataset=d)
-
-    # the cost we minimize during training is the negative log likelihood of
-    # the model in symbolic format
+    classifier = LogisticRegression(input=x, dataset=dataset)
     cost = classifier.negative_log_likelihood(y)
 
-    # compiling a Theano function that computes the mistakes that are made by
-    # the model on a minibatch
     test_model = theano.function(inputs=[index],
             outputs=classifier.errors(y),
             givens={
-                x: test_set_x[index * batch_size: (index + 1) * batch_size],
-                y: test_set_y[index * batch_size: (index + 1) * batch_size]})
+                x: test_set_x[index * hyper.batchSize: (index + 1) * hyper.batchSize],
+                y: test_set_y[index * hyper.batchSize: (index + 1) * hyper.batchSize]})
 
     validate_model = theano.function(inputs=[index],
             outputs=classifier.errors(y),
             givens={
-                x: valid_set_x[index * batch_size:(index + 1) * batch_size],
-                y: valid_set_y[index * batch_size:(index + 1) * batch_size]})
+                x: valid_set_x[index * hyper.batchSize:(index + 1) * hyper.batchSize],
+                y: valid_set_y[index * hyper.batchSize:(index + 1) * hyper.batchSize]})
 
-    # compute the gradient of cost with respect to theta = (W,b)
-    g_W = T.grad(cost=cost, wrt=classifier.W)
-    g_b = T.grad(cost=cost, wrt=classifier.b)
+    gradW = T.grad(cost=cost, wrt=classifier.W)
+    gradb = T.grad(cost=cost, wrt=classifier.b)
 
-    # specify how to update the parameters of the model as a list of
-    # (variable, update expression) pairs.
-    updates = [(classifier.W, classifier.W - learning_rate * g_W),
-               (classifier.b, classifier.b - learning_rate * g_b)]
+    updates = [(classifier.W, classifier.W - hyper.learningRate * gradW),
+               (classifier.b, classifier.b - hyper.learningRate * gradb)]
 
-    # compiling a Theano function `train_model` that returns the cost, but in
-    # the same time updates the parameter of the model based on the rules
-    # defined in `updates`
     train_model = theano.function(inputs=[index],
             outputs=cost,
             updates=updates,
             givens={
-                x: train_set_x[index * batch_size:(index + 1) * batch_size],
-                y: train_set_y[index * batch_size:(index + 1) * batch_size]})
-
-    ###############
-    # TRAIN MODEL #
-    ###############
-    print '... training the model'
-    # early-stopping parameters
-    patience = 5000  # look as this many examples regardless
-    patience_increase = 2  # wait this much longer when a new best is
-                                  # found
-    improvement_threshold = 0.995  # a relative improvement of this much is
-                                  # considered significant
-    validation_frequency = min(n_train_batches, patience / 2)
-                                  # go through this many
-                                  # minibatche before checking the network
-                                  # on the validation set; in this case we
-                                  # check every epoch
+                x: train_set_x[index * hyper.batchSize:(index + 1) * hyper.batchSize],
+                y: train_set_y[index * hyper.batchSize:(index + 1) * hyper.batchSize]})
 
     best_params = None
     best_validation_loss = numpy.inf
@@ -109,7 +83,8 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=1000, batch_size=600):
 
     done_looping = False
     epoch = 0
-    while (epoch < n_epochs) and (not done_looping):
+    patience = hyper.patience
+    while (epoch < hyper.numberEpochs) and (not done_looping):
         epoch = epoch + 1
         for minibatch_index in xrange(n_train_batches):
 
@@ -117,7 +92,7 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=1000, batch_size=600):
             # iteration number
             iter = (epoch - 1) * n_train_batches + minibatch_index
 
-            if (iter + 1) % validation_frequency == 0:
+            if (iter + 1) % validationFrequency == 0:
                 # compute zero-one loss on validation set
                 validation_losses = [validate_model(i)
                                      for i in xrange(n_valid_batches)]
@@ -131,8 +106,8 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=1000, batch_size=600):
                 if this_validation_loss < best_validation_loss:
                     #improve patience if loss improvement is good enough
                     if this_validation_loss < best_validation_loss *  \
-                       improvement_threshold:
-                        patience = max(patience, iter * patience_increase)
+                       hyper.improvementThreshold:
+                        patience = max(patience, iter * hyper.patienceIncrease)
 
                     best_validation_loss = this_validation_loss
                     # test it on the test set
@@ -161,5 +136,5 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=1000, batch_size=600):
                           ' ran for %.1fs' % ((end_time - start_time)))
 
 if __name__ == '__main__':
-    sgd_optimization_mnist()
+    sgd_optimization(dataset.Mnist(), HyperParameters())
 

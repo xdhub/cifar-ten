@@ -7,67 +7,55 @@ import cifar10
 import mnist
 
 class Dataset(object):
-    def __init__(self):
-        self.n_in = 0
-        self.n_out = 0
-        self.n_channels = 0
+    def __init__(self, train, valid, test):
+        self.train = train
+        self.valid = valid
+        self.test = test
+        self.initN()
+        self.initSharedData()
 
-    def shared_dataset(self, data_xy, borrow=True):
-        data_x, data_y = data_xy
-        shared_x = theano.shared(numpy.asarray(data_x,
-                                               dtype=theano.config.floatX),
-                                 borrow=borrow)
-        shared_y = theano.shared(numpy.asarray(data_y,
-                                               dtype=theano.config.floatX),
-                                 borrow=borrow)
-        return shared_x, T.cast(shared_y, 'int32')
-
-    def loadData(self):
-        train_set_x, train_set_y = self.shared_dataset(self.trainingSet)
-        valid_set_x, valid_set_y = self.shared_dataset(self.validationSet)
-        test_set_x, test_set_y = self.shared_dataset(self.testSet)
-
-        rval = [(train_set_x, train_set_y), (valid_set_x, valid_set_y),
-                (test_set_x, test_set_y)]
-        return rval
-
+    def initSharedData(self):
+        def sharedPair(data):
+            def shared(z):
+                return theano.shared(numpy.asarray(z, dtype=theano.config.floatX), borrow=True) 
+                
+            x, y = data
+            return shared(x), T.cast(shared(y), 'int32')
+            
+        self.sharedTrain = sharedPair(self.train)
+        self.sharedValid = sharedPair(self.valid)
+        self.sharedTest = sharedPair(self.test)
+        
+    def initN(self):
+        self.n_in = len(self.train[0][0])
+        self.n_out = max(self.train[1]) + 1
+        
 class Cifar10Part(Dataset):
     def __init__(self):
-        Dataset.__init__(self)
-        self.n_in = 32 * 32 * 3
-        self.n_out = 10
-        self.n_channels = 1
-        data = cifar10.batch1()
-        self.trainingSet = (data['data'], data['labels'])
-        data = cifar10.batch2()
-        self.validationSet = (data['data'], data['labels'])
-        data = cifar10.batch3()
-        self.testSet = (data['data'], data['labels'])
+        batch = cifar10.batch1()
+        train = batch['data'], batch['labels']
+        batch = cifar10.batch2()
+        valid = batch['data'], batch['labels']
+        batch = cifar10.batch3()
+        test = batch['data'], batch['labels']
+        Dataset.__init__(self, train, valid, test)
 
 class CifarFeatures(Dataset):
     def __init__(self, cifarDataset):
-        Dataset.__init__(self)
-
         def transform(data):
             from preprocess import dwtFftFeatures as feat
             from preprocess import reconstruct as recon
             x, y = data
             z = [feat(recon(a, (32, 32))) for a in x]
-            return (z, y)
-
-        self.trainingSet = transform(cifarDataset.trainingSet)
-        self.validationSet = transform(cifarDataset.validationSet)
-        self.testSet = transform(cifarDataset.testSet)
-
-        self.n_in = len(self.trainingSet[0][0])
-        self.n_out = cifarDataset.n_out
-        self.n_channels = 1
+            return z, y
+            
+        train = transform(cifarDataset.train)
+        valid = transform(cifarDataset.valid)
+        test = transform(cifarDataset.test)
+        Dataset.__init__(self, train, valid, test)
     
 class Mnist(Dataset):
     def __init__(self):
-        Dataset.__init__(self)
-        self.n_in = 28 * 28
-        self.n_out = 10
-        self.n_channels = 1
-        self.trainingSet, self.validationSet, self.testSet = mnist.mnist()
+        train, valid, test = mnist.mnist()
+        Dataset.__init__(self, train, valid, test)
 
