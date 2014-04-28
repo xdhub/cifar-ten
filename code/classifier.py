@@ -8,10 +8,10 @@ import theano.tensor as T
 
 import cifarDirectories
 sys.path.append(cifarDirectories.DeepLearningTutorialsCode())
-
 import logistic_sgd
 
 import dataset
+from hyperparameter import Hyperparameters
 
 class Classifier(object):
     def __init__(self):
@@ -21,18 +21,7 @@ class LogisticRegression(Classifier, logistic_sgd.LogisticRegression):
     def __init__(self, input, dataset):
         logistic_sgd.LogisticRegression.__init__(self, input, dataset.n_in, dataset.n_out)
 
-class HyperParameters(object):
-    def __init__(self, learningRate=0.13, numberEpochs=1000, batchSize=600, patience = 5000, patienceIncrease = 2, improvementThreshold = 0.995):
-        self.learningRate = learningRate
-        self.numberEpochs = numberEpochs
-        self.batchSize = batchSize
-        self.patience = patience
-        self.patienceIncrease = patienceIncrease
-        self.improvementThreshold = improvementThreshold
-
 def sgd_optimization(dataset, hyper):
-    print dataset.n_in, dataset.n_out
-
     train_set_x, train_set_y = dataset.sharedTrain
     valid_set_x, valid_set_y = dataset.sharedValid
     test_set_x, test_set_y = dataset.sharedTest
@@ -136,5 +125,5 @@ def sgd_optimization(dataset, hyper):
                           ' ran for %.1fs' % ((end_time - start_time)))
 
 if __name__ == '__main__':
-    sgd_optimization(dataset.Mnist(), HyperParameters())
+    sgd_optimization(dataset.Mnist(), Hyperparameters())
 
