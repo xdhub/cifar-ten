@@ -132,5 +132,5 @@ def test_DBN(dataset, hyper):
 
 if __name__ == '__main__':
     #test_DBN(ds.Mnist(), HyperparametersDBN(numberEpochs = 10, pretrainingEpochs = 1))
-    test_mlp(ds.CifarFeatures(ds.Cifar10Part()), HyperparametersMLP(pretrainingEpochs = 100, numberEpochs=1000))
+    test_DBN(ds.CifarFeatures(ds.Cifar10Part()), HyperparametersDBN(pretrainingEpochs = 100, numberEpochs=1000))
 
