@@ -155,5 +155,5 @@ def test_mlp(dataset, hyper):
 
 
 if __name__ == '__main__':
-    #test_mlp(ds.CifarFeatures(ds.Cifar10Part()), HyperparametersMLP(numberEpochs=1000))
-    test_mlp(ds.Mnist(), HyperparametersMLP(numberEpochs=10))
+    test_mlp(ds.CifarFeatures(ds.Cifar10Part()), HyperparametersMLP(numberEpochs=1000))
+    #test_mlp(ds.Mnist(), HyperparametersMLP(numberEpochs=10))
