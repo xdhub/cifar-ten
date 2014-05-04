@@ -1,7 +1,3 @@
-"""
-"""
-import cPickle
-import gzip
 import os
 import sys
 import time
@@ -16,7 +12,7 @@ import cifarDirectories
 sys.path.append(cifarDirectories.DeepLearningTutorialsCode())
 from DBN import DBN
 
-import dataset as ds
+import dataset
 from hyperparameter import HyperparametersDBN
 
 def test_DBN(dataset, hyper):
@@ -28,17 +24,13 @@ def test_DBN(dataset, hyper):
 
     n_train_batches = train_set_x.get_value(borrow=True).shape[0] / hyper.batchSize
 
-    # numpy random generator
     numpy_rng = numpy.random.RandomState(123)
     print '... building the model'
-    # construct the Deep Belief Network
+
     dbn = DBN(numpy_rng=numpy_rng, n_ins=dataset.n_in,
-              hidden_layers_sizes=[1000, 1000, 1000],
+              hidden_layers_sizes=hyper.nHidden,
               n_outs=dataset.n_out)
 
-    #########################
-    # PRETRAINING THE MODEL #
-    #########################
     print '... getting the pretraining functions'
     pretraining_fns = dbn.pretraining_functions(train_set_x=train_set_x,
                                                 batch_size=hyper.batchSize,
@@ -46,7 +38,7 @@ def test_DBN(dataset, hyper):
 
     print '... pre-training the model'
     start_time = time.clock()
-    ## Pre-train layer-wise
+
     for i in xrange(dbn.n_layers):
         # go through pretraining epochs
         for epoch in xrange(hyper.pretrainingEpochs):
@@ -96,19 +88,15 @@ def test_DBN(dataset, hyper):
                       (epoch, minibatch_index + 1, n_train_batches,
                        this_validation_loss * 100.))
 
-                # if we got the best validation score until now
                 if this_validation_loss < best_validation_loss:
 
-                    #improve patience if loss improvement is good enough
                     if (this_validation_loss < best_validation_loss *
                         hyper.improvementThreshold):
                         patience = max(patience, iter * hyper.patienceIncrease)
 
-                    # save best validation score and iteration number
                     best_validation_loss = this_validation_loss
                     best_iter = iter
 
-                    # test it on the test set
                     test_losses = test_model()
                     test_score = numpy.mean(test_losses)
                     print(('     epoch %i, minibatch %i/%i, test error of '
@@ -131,6 +119,6 @@ def test_DBN(dataset, hyper):
 
 
 if __name__ == '__main__':
-    #test_DBN(ds.Mnist(), HyperparametersDBN(numberEpochs = 10, pretrainingEpochs = 1))
-    test_DBN(ds.CifarFeatures(ds.Cifar10Part()), HyperparametersDBN(pretrainingEpochs = 100, numberEpochs=1000))
+    test_DBN(dataset.Mnist(), HyperparametersDBN(numberEpochs = 1000, pretrainingEpochs = 100))
+    #test_DBN(dataset.CifarFeatures(dataset.Cifar10Part()), HyperparametersDBN(pretrainingEpochs = 100, numberEpochs=1000, nHidden=[5000, 5000, 5000]))
 
