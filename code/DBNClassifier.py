@@ -37,12 +37,11 @@ def test_DBN(dataset, hyper):
                                                 k=hyper.k)
 
     print '... pre-training the model'
-    start_time = time.clock()
+    start_time = time.time()
 
     for i in xrange(dbn.n_layers):
-        # go through pretraining epochs
         for epoch in xrange(hyper.pretrainingEpochs):
-            # go through the training set
+            print "Pretraining epoch ", epoch, ", time ", (time.time() - start_time) / 60.0
             c = []
             for batch_index in xrange(n_train_batches):
                 c.append(pretraining_fns[i](index=batch_index,
@@ -50,8 +49,8 @@ def test_DBN(dataset, hyper):
             print 'Pre-training layer %i, epoch %d, cost ' % (i, epoch),
             print numpy.mean(c)
 
-    end_time = time.clock()
-    print >> sys.stderr, ('The pretraining code for file ' +
+    end_time = time.time()
+    print('The pretraining code for file ' +
                           os.path.split(__file__)[1] +
                           ' ran for %.2fm' % ((end_time - start_time) / 60.))
 
@@ -68,13 +67,14 @@ def test_DBN(dataset, hyper):
     best_params = None
     best_validation_loss = numpy.inf
     test_score = 0.
-    start_time = time.clock()
+    start_time = time.time()
 
     done_looping = False
     epoch = 0
 
     while (epoch < hyper.numberEpochs) and (not done_looping):
         epoch = epoch + 1
+	print "Finetuning epoch ", epoch, ", time ", (time.time() - start_time) / 60.0 
         for minibatch_index in xrange(n_train_batches):
 
             minibatch_avg_cost = train_fn(minibatch_index)
@@ -108,17 +108,18 @@ def test_DBN(dataset, hyper):
                 done_looping = True
                 break
 
-    end_time = time.clock()
+    end_time = time.time()
     print(('Optimization complete with best validation score of %f %%,'
            'with test performance %f %%') %
                  (best_validation_loss * 100., test_score * 100.))
-    print >> sys.stderr, ('The fine tuning code for file ' +
+    print('The fine tuning code for file ' +
                           os.path.split(__file__)[1] +
                           ' ran for %.2fm' % ((end_time - start_time)
                                               / 60.))
 
 
 if __name__ == '__main__':
-    test_DBN(dataset.Mnist(), HyperparametersDBN(numberEpochs = 1000, pretrainingEpochs = 100))
+    test_DBN(dataset.Mnist(), HyperparametersDBN(numberEpochs = 10, pretrainingEpochs = 2))
+    #test_DBN(dataset.Mnist(), HyperparametersDBN(numberEpochs = 100, pretrainingEpochs = 10, nHidden=[5000, 5000, 5000]))
     #test_DBN(dataset.CifarFeatures(dataset.Cifar10Part()), HyperparametersDBN(pretrainingEpochs = 100, numberEpochs=1000, nHidden=[5000, 5000, 5000]))
 
