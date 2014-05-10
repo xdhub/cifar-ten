@@ -38,7 +38,7 @@ def test_DBN(dataset, hyper):
                                                 k=hyper.k)
 
     # Start timeout timer
-    wait_timeout(test_DBN, 2)
+    wait_timeout(test_DBN, 30)
 
     print '... pre-training the model'
     start_time = time.time()
