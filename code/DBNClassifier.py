@@ -10,7 +10,7 @@ from theano.tensor.shared_randomstreams import RandomStreams
 
 import cifarDirectories
 sys.path.append(cifarDirectories.DeepLearningTutorialsCode())
-from DBN import DBN
+import DBN
 
 import dataset
 from hyperparameter import HyperparametersDBN
@@ -41,7 +41,7 @@ def test_DBN(dataset, hyper):
 
     for i in xrange(dbn.n_layers):
         for epoch in xrange(hyper.pretrainingEpochs):
-            print "Pretraining epoch ", epoch, ", time ", (time.time() - start_time) / 60.0
+            print 'Pretraining epoch ', epoch, ', time ', (time.time() - start_time) / 60.0
             c = []
             for batch_index in xrange(n_train_batches):
                 c.append(pretraining_fns[i](index=batch_index,
@@ -50,9 +50,7 @@ def test_DBN(dataset, hyper):
             print numpy.mean(c)
 
     end_time = time.time()
-    print('The pretraining code for file ' +
-                          os.path.split(__file__)[1] +
-                          ' ran for %.2fm' % ((end_time - start_time) / 60.))
+    print 'The pretraining code for file ', os.path.split(__file__)[1], (' ran for %.2fm' % (end_time - start_time) / 60.0)
 
     print '... getting the finetuning functions'
     train_fn, validate_model, test_model = dbn.build_finetune_functions(
