@@ -6,6 +6,7 @@ function experiment()
 }
 
 pushd .
+cd code
 
 experiment 01
 experiment 02
