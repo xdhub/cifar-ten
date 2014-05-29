@@ -117,7 +117,7 @@ def test_DBN(dataset, hyper):
 
 
 if __name__ == '__main__':
-    test_DBN(dataset.Mnist(), HyperparametersDBN(numberEpochs = 10, pretrainingEpochs = 2))
+    #test_DBN(dataset.Mnist(), HyperparametersDBN(numberEpochs = 10, pretrainingEpochs = 2))
     #test_DBN(dataset.Mnist(), HyperparametersDBN(numberEpochs = 100, pretrainingEpochs = 10, nHidden=[5000, 5000, 5000]))
-    #test_DBN(dataset.CifarFeatures(dataset.Cifar10Part()), HyperparametersDBN(pretrainingEpochs = 100, numberEpochs=1000, nHidden=[5000, 5000, 5000]))
+    test_DBN(dataset.Cifar10Part(), HyperparametersDBN(pretrainingEpochs = 100, numberEpochs=1000, nHidden=[5000, 5000, 5000]))
 

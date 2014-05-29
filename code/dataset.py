@@ -29,15 +29,15 @@ class Dataset(object):
     def initN(self):
         self.n_in = len(self.train[0][0])
         self.n_out = max(self.train[1]) + 1
-        
+
 class Cifar10Part(Dataset):
     def __init__(self):
         batch = cifar10.batch1()
-        train = batch['data'], batch['labels']
+        train = batch['data'] / 256.0, batch['labels']
         batch = cifar10.batch2()
-        valid = batch['data'], batch['labels']
+        valid = batch['data'] / 256.0, batch['labels']
         batch = cifar10.batch3()
-        test = batch['data'], batch['labels']
+        test = batch['data'] / 256.0, batch['labels']
         Dataset.__init__(self, train, valid, test)
 
 class CifarFeatures(Dataset):
